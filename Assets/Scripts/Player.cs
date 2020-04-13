@@ -5,6 +5,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     CharacterController Controller;
+    
+    public Camera Camera;
 
     [Range(.0f, 1f)]
     public float Speed = 0.1f;
@@ -28,6 +30,7 @@ public class Player : MonoBehaviour
         Controller = GetComponent<CharacterController>();
     }
 
+    float cameraRotation = 0;
     // Update is called once per frame
     void Update()
     {
@@ -39,10 +42,13 @@ public class Player : MonoBehaviour
         Controller.Move(verInput * Speed * HorizontalForward * recSize);
         Controller.Move(horInput * Speed * HorizontalRight * recSize);
         
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.Locked;
         var mouseX = Input.GetAxisRaw("Mouse X");
+        var mouseY = Input.GetAxisRaw("Mouse Y");
 
         Controller.transform.Rotate(0, mouseX, 0);
+        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
+        // Debug.Log(mouseY);
     }
 
     public float Mod(float lhs, float rhs)
