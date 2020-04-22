@@ -366,6 +366,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LockImage: {fileID: 793452425}
   LoadingText: {fileID: 1753715885}
+  ContinueButton: {fileID: 1121027071}
 --- !u!1 &663141427
 GameObject:
   m_ObjectHideFlags: 0
@@ -895,7 +896,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 216926466}
-        m_MethodName: StartGame
+        m_MethodName: Continue
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
