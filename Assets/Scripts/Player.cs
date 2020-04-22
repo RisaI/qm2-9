@@ -31,6 +31,7 @@ public class Player : MonoBehaviour
     }
 
     float cameraRotation = 0;
+    float yVelocity = 0;
     // Update is called once per frame
     void Update()
     {
@@ -39,8 +40,11 @@ public class Player : MonoBehaviour
         
         var recSize = Mathf.Cos(Mod(Mathf.Atan2(verInput, horInput) + Mathf.PI / 4, Mathf.PI / 2) - Mathf.PI / 4f);
 
-        Controller.Move(verInput * Speed * HorizontalForward * recSize);
-        Controller.Move(horInput * Speed * HorizontalRight * recSize);
+        // Controller.Move(verInput * Speed * HorizontalForward * recSize);
+        Controller.Move(
+            (verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize +
+            new Vector3(0, yVelocity * Time.deltaTime, 0)
+        );
         
         Cursor.lockState = CursorLockMode.Locked;
         var mouseX = Input.GetAxisRaw("Mouse X");
@@ -48,7 +52,26 @@ public class Player : MonoBehaviour
 
         Controller.transform.Rotate(0, mouseX, 0);
         Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
-        // Debug.Log(mouseY);
+        
+        if (Controller.isGrounded)
+        {
+            yVelocity = -1e-1f;
+            if (Input.GetAxis("Jump") > 0.5f)
+            {
+                Debug.Log("jump");
+                yVelocity = 4;
+                Controller.Move(new Vector3(0, yVelocity * Time.deltaTime, 0));
+            }
+        }
+        else
+        {
+            yVelocity += Time.deltaTime * Physics.gravity.y;
+        }
+    }
+
+    void Death()
+    {
+
     }
 
     public float Mod(float lhs, float rhs)
