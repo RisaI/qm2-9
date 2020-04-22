@@ -7,22 +7,33 @@ public class GameState : ISerializable
     public static string FileName { get { return Path.Combine(Application.persistentDataPath, "save.dat"); } }
     public static GameState Current { get; set; }
 
-    public int Stage { get; set; }
+    private int _stage, _chckpointIdx;
+
+    public int Stage { get { return _stage; } set { Dirty = _stage != value; _stage = value; } }
+    public int CheckpointIndex { get { return _chckpointIdx; } set { Dirty = _chckpointIdx != value; _chckpointIdx = value; } }
+
+    public bool Dirty { get; private set; }
 
     GameState() { }
 
     public void Serialize(BinaryWriter writer)
     {
         writer.Write(Stage);
+        writer.Write(CheckpointIndex);
     }
 
     public void Deserialize(BinaryReader reader)
     {
         Stage = reader.ReadInt32();
+        CheckpointIndex = reader.ReadInt32();
     }
 
     public void SaveToFile()
     {
+        Dirty = false;
+
+        Debug.Log("Saving game state");
+
         using (var stream = new FileStream(FileName, FileMode.Create, FileAccess.Write))
         using (var writer = new BinaryWriter(stream))
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,21 +9,24 @@ public class Player : MonoBehaviour
     
     public Camera Camera;
 
-    [Range(.0f, 1f)]
-    public float Speed = 0.1f;
+    [Range(0, 100)]
+    public float Speed = 1f;
 
     public Vector3 HorizontalForward
     {
-        get { return Vector3.Scale(Controller.transform.forward, new Vector3(1,0,1)).normalized; }
+        get {
+            return Controller.transform.forward;
+        }
     }
 
     public Vector3 HorizontalRight
     {
         get {
-            var fwd = HorizontalForward;
-            return new Vector3(fwd.z, 0, -fwd.x);
+            return Controller.transform.right;
         }
     }
+
+    public Vector3 Up => Controller.transform.up;
 
     // Start is called before the first frame update
     void Start()
@@ -31,10 +35,26 @@ public class Player : MonoBehaviour
     }
 
     float cameraRotation = 0;
-    float yVelocity = 0;
+    Vector3 velocity = Vector3.zero;
+
+    bool restartAvailable;
+
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetAxis("Restart") > 0.5f)
+        {
+            if (restartAvailable)
+                Death();
+
+            restartAvailable = false;
+            return;
+        }
+        else
+        {
+            restartAvailable = true;
+        }
+
         var verInput = Input.GetAxis("Vertical");
         var horInput = Input.GetAxis("Horizontal");
         
@@ -42,8 +62,7 @@ public class Player : MonoBehaviour
 
         // Controller.Move(verInput * Speed * HorizontalForward * recSize);
         Controller.Move(
-            (verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize +
-            new Vector3(0, yVelocity * Time.deltaTime, 0)
+            ((verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize + velocity) * Time.deltaTime
         );
         
         Cursor.lockState = CursorLockMode.Locked;
@@ -55,23 +74,56 @@ public class Player : MonoBehaviour
         
         if (Controller.isGrounded)
         {
-            yVelocity = -1e-1f;
+            velocity = -Up * 1e-1f;
             if (Input.GetAxis("Jump") > 0.5f)
             {
                 Debug.Log("jump");
-                yVelocity = 4;
-                Controller.Move(new Vector3(0, yVelocity * Time.deltaTime, 0));
+                velocity = Up * 4;
+                Controller.Move(velocity * Time.deltaTime);
             }
         }
         else
         {
-            yVelocity += Time.deltaTime * Physics.gravity.y;
+            velocity += Up * Time.deltaTime * Physics.gravity.y;
         }
     }
 
-    void Death()
+    void OnTriggerEnter(Collider other)
     {
+        Checkpoint check;
+        if (other.TryGetComponent<Checkpoint>(out check))
+        {
+            GameState.Current.CheckpointIndex = check.Index;
 
+            if (GameState.Current.Stage < check.Stage)
+                GameState.Current.Stage = check.Stage;
+
+            if (GameState.Current.Dirty)
+                GameState.Current.SaveToFile();
+        }
+
+        Flipper flip;
+        if (other.TryGetComponent<Flipper>(out flip))
+        {
+            Flip(-flip.transform.up);
+        }
+    }
+
+    public void Death()
+    {
+        var (pos, rot) = this.gameObject.scene.GetRootGameObjects()
+            .First(go => go.GetComponent<ISceneController>() != null)
+            .GetComponent<ISceneController>()
+            .GetCheckPoint(GameState.Current.Stage);
+
+        velocity = Vector3.zero;
+        Controller.transform.position = pos;
+        Controller.transform.rotation = rot;
+    }
+
+    public void Flip(Vector3 newUp)
+    {
+        Controller.transform.rotation = Quaternion.LookRotation(HorizontalForward - newUp * Vector3.Dot(newUp, HorizontalForward), newUp);
     }
 
     public float Mod(float lhs, float rhs)

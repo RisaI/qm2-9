@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DebugController : MonoBehaviour
+public class DebugController : MonoBehaviour, ISceneController
 {
+    public GameObject SpawnPoint;
+
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (GameState.Current == null)
             GameState.Current = GameState.LoadNewGame();
@@ -16,4 +18,10 @@ public class DebugController : MonoBehaviour
     {
         
     }
+
+    public (Vector3, Quaternion) GetCheckPoint(int idx)
+    {
+        return (SpawnPoint.transform.position, SpawnPoint.transform.rotation);
+    }
+
 }
