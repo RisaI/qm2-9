@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
         Controller.transform.Rotate(0, mouseX, 0);
         Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
         
-        if (Controller.isGrounded)
+        if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f))
         {
             velocity = -Up * 1e-1f;
             if (Input.GetAxis("Jump") > 0.5f)
