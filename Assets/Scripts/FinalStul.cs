@@ -15,11 +15,12 @@ public class FinalStul : MonoBehaviour
         StartCoroutine(FinishGame());
 
     }
-    
+
     private IEnumerator FinishGame()
     {
         yield return new WaitForSeconds(10);
-        //TODO: UKONČIT HRU
+
+        //TODO: UKONČIT HRU KÓD TADY...
     }
     // Start is called before the first frame update
     void Start()
