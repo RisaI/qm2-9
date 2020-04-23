@@ -41,7 +41,7 @@ public class Player : MonoBehaviour
     float cameraRotation = 0;
     Vector3 velocity = Vector3.zero;
 
-    bool restartAvailable;
+    bool restartAvailable, wasOnGround;
 
     bool flipUnlocked;
 
@@ -66,29 +66,44 @@ public class Player : MonoBehaviour
         
         var recSize = Mathf.Cos(Mod(Mathf.Atan2(verInput, horInput) + Mathf.PI / 4, Mathf.PI / 2) - Mathf.PI / 4f);
 
-        if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
+        // if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
+        if (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), -Controller.transform.up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         {
             var relVel = Vector3.Dot(Controller.transform.up, velocity);
 
-            if (-relVel > HeightDamageTreshold)
+            if (-relVel > HeightDamageTreshold && !wasOnGround)
             {
                 Death();
                 return;
             }
+            else if (relVel <= 0)
+            {
+                wasOnGround = true;
 
-            velocity = -Up * 1e-1f;
-            if (GameState.Current.YFlipUnlocked && Input.GetAxis("YFlip") > 0.5f)
-            {
-                Flip(-Up);
+                velocity = -Up * 10;
+                if (GameState.Current.YFlipUnlocked && Input.GetAxis("YFlip") > 0.5f)
+                {
+                    Flip(-Up);
+                }
+                else if (Input.GetAxis("Jump") > 0.5f)
+                {
+                    wasOnGround = false;
+                    velocity = Up * JumpVelocity;
+                }
             }
-            else if (Input.GetAxis("Jump") > 0.5f)
+            else
             {
-                velocity = Up * JumpVelocity;
+                velocity += Up * Time.deltaTime * Physics.gravity.y;
+                wasOnGround = false;
             }
         }
         else
         {
+            if (wasOnGround)
+                velocity = Vector3.zero;
+
             velocity += Up * Time.deltaTime * Physics.gravity.y;
+            wasOnGround = false;
         }
 
         Controller.Move(
