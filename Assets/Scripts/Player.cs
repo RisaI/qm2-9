@@ -152,6 +152,7 @@ public class Player : MonoBehaviour
         Checkpoint check;
         if (other.TryGetComponent<Checkpoint>(out check))
         {
+            GameState.Current.CheckpointReached(new CheckpointReachEventArgs(check.Index, check.OverwriteHigher, check.Notify));
             if (check.Index > GameState.Current.CheckpointIndex || check.OverwriteHigher)
                 GameState.Current.CheckpointIndex = check.Index;
 

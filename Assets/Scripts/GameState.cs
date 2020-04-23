@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,13 @@ public class GameState : ISerializable
 
     public bool Dirty { get; private set; }
 
+    public event Action<CheckpointReachEventArgs> OnCheckpointReach;
+
+    public void CheckpointReached(CheckpointReachEventArgs e)
+    {
+        OnCheckpointReach?.Invoke(e);
+    }
+    
     GameState() { }
 
     public void Serialize(BinaryWriter writer)
@@ -58,4 +66,37 @@ public class GameState : ISerializable
     {
         return new GameState();
     }
+}
+
+public class CheckpointReachEventArgs
+{
+    private int _index;
+    private bool _overwrite;
+    private bool _notify;
+
+    public int Index
+    {
+        get => _index;
+        set => _index = value;
+    }
+
+    public bool Overwrite
+    {
+        get => _overwrite;
+        set => _overwrite = value;
+    }
+
+    public bool Notify
+    {
+        get => _notify;
+        set => _notify = value;
+    }
+
+    public CheckpointReachEventArgs(int index, bool overwrite, bool notify)
+    {
+        _index = index;
+        _overwrite = overwrite;
+        _notify = notify;
+    }
+    
 }
