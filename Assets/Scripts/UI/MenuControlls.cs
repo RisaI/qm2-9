@@ -39,6 +39,7 @@ public class MenuControlls : MonoBehaviour
 
     void Update()
     {
+        Cursor.lockState = CursorLockMode.None;
         if (CurrentLoad != null)
             LoadingText.GetComponent<TMPro.TextMeshProUGUI>().text = $"Kvantuji... ({(CurrentLoad.progress * 100).ToString("N0")}%)";
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FinalStul : MonoBehaviour
 {
@@ -13,24 +14,15 @@ public class FinalStul : MonoBehaviour
         komparator.ChangeText();
         skript.ShowStuff();
         StartCoroutine(FinishGame());
-
     }
 
     private IEnumerator FinishGame()
     {
+        Settings.Current.Finished = true;
+        Settings.Current.SaveToFile();
+
         yield return new WaitForSeconds(10);
-
-        //TODO: UKONČIT HRU KÓD TADY...
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        SceneManager.LoadScene("Scenes/Menu");
     }
 }
