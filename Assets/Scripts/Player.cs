@@ -178,6 +178,7 @@ public class Player : MonoBehaviour
     public void Flip(Vector3 newUp)
     {
         var camFwd = Camera.transform.forward;
+        var camUp = Camera.transform.up;
         var camDot = Vector3.Dot(camFwd, newUp);
 
         Camera.transform.localRotation = Quaternion.Euler(cameraRotation = camDot >= 1f ? -90f : (camDot <= -1f ? 90f : Mathf.Acos(camDot) * 180 / Mathf.PI - 90), 0, 0);
@@ -185,7 +186,7 @@ public class Player : MonoBehaviour
         var lookVec = camFwd - newUp * Vector3.Dot(newUp, camFwd);
 
         if (lookVec == Vector3.zero)
-            lookVec = -Up + newUp * Vector3.Dot(newUp, -Up);
+            lookVec = -camUp + newUp * Vector3.Dot(newUp, -camUp);
         
         Controller.transform.rotation = Quaternion.LookRotation(lookVec, newUp);
     }
