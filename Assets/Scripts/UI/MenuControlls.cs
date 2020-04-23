@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuControlls : MonoBehaviour
 {
+    const string DriveURL = "https://drive.google.com/open?id=1ChuHvzJeTMXxRfr1TOSPbJL_EKiaK4Sn";
+
     public UnityEngine.UI.Image LockImage;
     public GameObject LoadingText, ContinueButton;
 
@@ -45,7 +47,7 @@ public class MenuControlls : MonoBehaviour
     {
         if (Settings.Current.Finished)
         {
-            Application.OpenURL("https://www.seznam.cz/");
+            Application.OpenURL(DriveURL);
         }
     }
 

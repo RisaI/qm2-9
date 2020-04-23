@@ -65,12 +65,10 @@ public class Player : MonoBehaviour
         var horInput = Input.GetAxis("Horizontal");
         
         var recSize = Mathf.Cos(Mod(Mathf.Atan2(verInput, horInput) + Mathf.PI / 4, Mathf.PI / 2) - Mathf.PI / 4f);
+        var relVel = Vector3.Dot(Controller.transform.up, velocity);
 
-        // if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         if (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), -Controller.transform.up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         {
-            var relVel = Vector3.Dot(Controller.transform.up, velocity);
-
             if (-relVel > HeightDamageTreshold && !wasOnGround)
             {
                 Death();
@@ -99,8 +97,9 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (wasOnGround)
-                velocity = Vector3.zero;
+            if (wasOnGround ||
+                (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), Up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore) && relVel > 0))
+                velocity -= Up * Vector3.Dot(Up, velocity);
 
             velocity += Up * Time.deltaTime * Physics.gravity.y;
             wasOnGround = false;
@@ -110,11 +109,20 @@ public class Player : MonoBehaviour
             ((verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize + velocity) * Time.deltaTime
         );
 
-        Cursor.lockState = CursorLockMode.Locked;
-        var mouseX = Input.GetAxisRaw("Mouse X");
-        var mouseY = Input.GetAxisRaw("Mouse Y");
-        Controller.transform.Rotate(0, mouseX, 0);
-        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
+        if (GameState.Current.MiniMenu)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            var mouseX = Input.GetAxisRaw("Mouse X");
+            var mouseY = Input.GetAxisRaw("Mouse Y");
+            Controller.transform.Rotate(0, mouseX, 0);
+            cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90);
+        }
+
+        Camera.transform.localRotation = Quaternion.Euler(cameraRotation, 0, 0);
     }
 
     bool _died;
@@ -152,18 +160,26 @@ public class Player : MonoBehaviour
         Checkpoint check;
         if (other.TryGetComponent<Checkpoint>(out check))
         {
-            GameState.Current.CheckpointReached(new CheckpointReachEventArgs(check.Index, check.OverwriteHigher, check.Notify));
             if (check.Index > GameState.Current.CheckpointIndex || check.OverwriteHigher)
                 GameState.Current.CheckpointIndex = check.Index;
 
             if (GameState.Current.Dirty)
+            {
                 GameState.Current.SaveToFile();
+                GameState.Current.CheckpointReached(new CheckpointReachEventArgs(check.Index, true));
+            }
         }
 
         Flipper flip;
         if (other.TryGetComponent<Flipper>(out flip))
         {
             Flip(-flip.Direction);
+        }
+
+        FinalStul finalstul;
+        if (other.TryGetComponent<FinalStul>(out finalstul))
+        {
+            finalstul.TriggerFinal();
         }
 
         if (other.tag == "Killer")
@@ -178,6 +194,7 @@ public class Player : MonoBehaviour
     public void Flip(Vector3 newUp)
     {
         var camFwd = Camera.transform.forward;
+        var camUp = Camera.transform.up;
         var camDot = Vector3.Dot(camFwd, newUp);
 
         Camera.transform.localRotation = Quaternion.Euler(cameraRotation = camDot >= 1f ? -90f : (camDot <= -1f ? 90f : Mathf.Acos(camDot) * 180 / Mathf.PI - 90), 0, 0);
@@ -185,7 +202,7 @@ public class Player : MonoBehaviour
         var lookVec = camFwd - newUp * Vector3.Dot(newUp, camFwd);
 
         if (lookVec == Vector3.zero)
-            lookVec = -Up + newUp * Vector3.Dot(newUp, -Up);
+            lookVec = -camUp + newUp * Vector3.Dot(newUp, -camUp);
         
         Controller.transform.rotation = Quaternion.LookRotation(lookVec, newUp);
     }

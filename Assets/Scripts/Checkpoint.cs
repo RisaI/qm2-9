@@ -6,5 +6,4 @@ public class Checkpoint : MonoBehaviour
 {
     public int Index = 0;
     public bool OverwriteHigher;
-    public bool Notify;
 }

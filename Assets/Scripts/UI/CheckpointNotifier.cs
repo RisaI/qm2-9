@@ -6,20 +6,17 @@ public class CheckpointNotifier : MonoBehaviour
 {
     private bool _show;
 
-    private int _highest;
-    
     // Start is called before the first frame update
     void Start()
     {
         _show = false;
-        int _highest = 0;
         GetComponent<TMPro.TextMeshProUGUI>().enabled = false;
         
         GameState.Current.OnCheckpointReach += (e) =>
         {
-            if (e.Notify && !_show && (e.Index > _highest || e.Overwrite))
+            if (e.Notify && !_show)
             {
-                _highest = e.Index;
+                Debug.Log("Showing text");
                 StartCoroutine(ShowText());
             }
         };
