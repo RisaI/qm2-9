@@ -80,22 +80,15 @@ public class CheckpointReachEventArgs
         set => _index = value;
     }
 
-    public bool Overwrite
-    {
-        get => _overwrite;
-        set => _overwrite = value;
-    }
-
     public bool Notify
     {
         get => _notify;
         set => _notify = value;
     }
 
-    public CheckpointReachEventArgs(int index, bool overwrite, bool notify)
+    public CheckpointReachEventArgs(int index, bool notify)
     {
         _index = index;
-        _overwrite = overwrite;
         _notify = notify;
     }
     

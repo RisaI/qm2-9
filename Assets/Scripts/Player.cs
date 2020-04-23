@@ -65,12 +65,10 @@ public class Player : MonoBehaviour
         var horInput = Input.GetAxis("Horizontal");
         
         var recSize = Mathf.Cos(Mod(Mathf.Atan2(verInput, horInput) + Mathf.PI / 4, Mathf.PI / 2) - Mathf.PI / 4f);
+        var relVel = Vector3.Dot(Controller.transform.up, velocity);
 
-        // if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         if (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), -Controller.transform.up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         {
-            var relVel = Vector3.Dot(Controller.transform.up, velocity);
-
             if (-relVel > HeightDamageTreshold && !wasOnGround)
             {
                 Death();
@@ -99,8 +97,9 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (wasOnGround)
-                velocity = Vector3.zero;
+            if (wasOnGround ||
+                (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), Up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore) && relVel > 0))
+                velocity -= Up * Vector3.Dot(Up, velocity);
 
             velocity += Up * Time.deltaTime * Physics.gravity.y;
             wasOnGround = false;
@@ -152,12 +151,14 @@ public class Player : MonoBehaviour
         Checkpoint check;
         if (other.TryGetComponent<Checkpoint>(out check))
         {
-            GameState.Current.CheckpointReached(new CheckpointReachEventArgs(check.Index, check.OverwriteHigher, check.Notify));
             if (check.Index > GameState.Current.CheckpointIndex || check.OverwriteHigher)
                 GameState.Current.CheckpointIndex = check.Index;
 
             if (GameState.Current.Dirty)
+            {
                 GameState.Current.SaveToFile();
+                GameState.Current.CheckpointReached(new CheckpointReachEventArgs(check.Index, true));
+            }
         }
 
         Flipper flip;
