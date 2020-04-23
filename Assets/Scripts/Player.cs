@@ -167,6 +167,12 @@ public class Player : MonoBehaviour
             Flip(-flip.Direction);
         }
 
+        FinalStul finalstul;
+        if (other.TryGetComponent<FinalStul>(out finalstul))
+        {
+            finalstul.TriggerFinal();
+        }
+
         if (other.tag == "Killer")
             Death();
     }
