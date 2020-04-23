@@ -9,7 +9,18 @@ public class GameState : ISerializable
     public static GameState Current { get; set; }
 
     private int _stage, _chckpointIdx;
+    private bool _miniMenu;
 
+    public bool MiniMenu
+    {
+        get { return _miniMenu; }
+        set
+        {
+            if (_miniMenu != value)
+                MiniMenuToggle?.Invoke(value);
+            _miniMenu = value;
+        }
+    }
     public int Stage { get { return _stage; } set { Dirty = _stage != value; _stage = value; } }
     public int CheckpointIndex { get { return _chckpointIdx; } set { Dirty = _chckpointIdx != value; _chckpointIdx = value; } }
 
@@ -18,6 +29,7 @@ public class GameState : ISerializable
     public bool Dirty { get; private set; }
 
     public event Action<CheckpointReachEventArgs> OnCheckpointReach;
+    public event Action<bool> MiniMenuToggle;
 
     public void CheckpointReached(CheckpointReachEventArgs e)
     {

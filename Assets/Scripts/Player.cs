@@ -109,11 +109,20 @@ public class Player : MonoBehaviour
             ((verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize + velocity) * Time.deltaTime
         );
 
-        Cursor.lockState = CursorLockMode.Locked;
-        var mouseX = Input.GetAxisRaw("Mouse X");
-        var mouseY = Input.GetAxisRaw("Mouse Y");
-        Controller.transform.Rotate(0, mouseX, 0);
-        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
+        if (GameState.Current.MiniMenu)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            var mouseX = Input.GetAxisRaw("Mouse X");
+            var mouseY = Input.GetAxisRaw("Mouse Y");
+            Controller.transform.Rotate(0, mouseX, 0);
+            cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90);
+        }
+
+        Camera.transform.localRotation = Quaternion.Euler(cameraRotation, 0, 0);
     }
 
     bool _died;
