@@ -9,6 +9,9 @@ public class GameController : MonoBehaviour, ISceneController
     {
         if (GameState.Current == null)
             GameState.Current = GameState.LoadNewGame();
+
+        GameState.Current.Stage = 3;
+        GameState.Current.CheckpointIndex = 7;
     }
     
     void Start()

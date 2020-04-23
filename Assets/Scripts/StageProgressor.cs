@@ -8,4 +8,10 @@ public class StageProgressor : MonoBehaviour
     public int Stage;
 
     public bool RemoveOnProgress;
+
+    void Start()
+    {
+        if (RemoveOnProgress && GameState.Current.Stage >= Stage)
+            gameObject.SetActive(false);
+    }
 }
