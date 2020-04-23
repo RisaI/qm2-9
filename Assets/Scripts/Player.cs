@@ -65,9 +65,9 @@ public class Player : MonoBehaviour
         var horInput = Input.GetAxis("Horizontal");
         
         var recSize = Mathf.Cos(Mod(Mathf.Atan2(verInput, horInput) + Mathf.PI / 4, Mathf.PI / 2) - Mathf.PI / 4f);
-        var relVel = Vector3.Dot(Controller.transform.up, velocity);
+        var relVel = Vector3.Dot(Up, velocity);
 
-        if (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), -Controller.transform.up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
+        if (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), -Up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         {
             if (-relVel > HeightDamageTreshold && !wasOnGround)
             {
@@ -99,7 +99,9 @@ public class Player : MonoBehaviour
         {
             if (wasOnGround ||
                 (Physics.BoxCast(transform.position, new Vector3(0.5f, 0.05f, 0.5f), Up, Controller.transform.rotation, 1.05f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore) && relVel > 0))
-                velocity -= Up * Vector3.Dot(Up, velocity);
+                velocity = Vector3.zero;
+            // if (wasOnGround)
+                // velocity -= Up * Vector3.Dot(Up, velocity);
 
             velocity += Up * Time.deltaTime * Physics.gravity.y;
             wasOnGround = false;
@@ -205,6 +207,8 @@ public class Player : MonoBehaviour
             lookVec = -camUp + newUp * Vector3.Dot(newUp, -camUp);
         
         Controller.transform.rotation = Quaternion.LookRotation(lookVec, newUp);
+
+        Debug.Log(newUp);
     }
 
     public float Mod(float lhs, float rhs)
