@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ce7c3881afd78ed4c9562594ea4465d1
+guid: 7580498954a83044b8c919f037354fe0
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable: []
@@ -7,13 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material.001
-    second: {fileID: 2100000, guid: 4201f72039c642348a47d6f6a8495700, type: 2}
+      name: LampBody
+    second: {fileID: 2100000, guid: e306285546670db409080bc59abba3ac, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material.002
-    second: {fileID: 2100000, guid: db527af0c874fbe479ec109b81cfd2e1, type: 2}
+      name: LampHead
+    second: {fileID: 2100000, guid: c451fffd64694eb49a3401c3c238c1ef, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

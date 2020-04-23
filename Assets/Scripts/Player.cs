@@ -43,6 +43,8 @@ public class Player : MonoBehaviour
 
     bool restartAvailable;
 
+    bool flipUnlocked;
+
     // Update is called once per frame
     void Update()
     {
