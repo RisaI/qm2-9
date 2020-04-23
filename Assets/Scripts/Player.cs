@@ -151,7 +151,6 @@ public class Player : MonoBehaviour
         StageProgressor prog;
         if (other.TryGetComponent<StageProgressor>(out prog))
         {
-            Debug.Log($"Setting stage {prog.Stage}");
             if (GameState.Current.Stage < prog.Stage)
                 GameState.Current.Stage = prog.Stage;
 
