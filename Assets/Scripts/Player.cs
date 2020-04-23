@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
 
     [Range(0, 100)]
     public float Speed = 1f;
+    [Range(0, 20)]
+    public float JumpVelocity = 4f;
 
     public float HeightDamageTreshold = 20f;
 
@@ -79,7 +81,7 @@ public class Player : MonoBehaviour
             }
             else if (Input.GetAxis("Jump") > 0.5f)
             {
-                velocity = Up * 4;
+                velocity = Up * JumpVelocity;
             }
         }
         else
