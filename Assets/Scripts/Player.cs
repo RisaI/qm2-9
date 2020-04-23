@@ -112,8 +112,7 @@ public class Player : MonoBehaviour
 
             velocity = Vector3.zero;
             Camera.transform.localRotation = Quaternion.Euler(cameraRotation = 0, 0, 0);
-            Controller.transform.position = pos;
-            Controller.transform.rotation = rot;
+            Controller.transform.SetPositionAndRotation(pos, rot);
 
             _died = false;
         }
@@ -157,6 +156,7 @@ public class Player : MonoBehaviour
 
     public void Flip(Vector3 newUp)
     {
+        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Acos(Vector3.Dot(Camera.transform.forward, newUp)) * 180 / Mathf.PI - 90, 0, 0);
         Controller.transform.rotation = Quaternion.LookRotation(HorizontalForward - newUp * Vector3.Dot(newUp, HorizontalForward), newUp);
     }
 

@@ -10,6 +10,9 @@ public class DebugController : MonoBehaviour, ISceneController
     {
         if (GameState.Current == null)
             GameState.Current = GameState.LoadNewGame();
+
+        GameState.Current.Stage = 1;
+        GameState.Current.CheckpointIndex = 2;
     }
 
     // Update is called once per frame
