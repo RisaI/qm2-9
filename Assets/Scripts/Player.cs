@@ -149,6 +149,9 @@ public class Player : MonoBehaviour
         {
             Flip(-flip.Direction);
         }
+
+        if (other.tag == "Killer")
+            Death();
     }
 
     public void Death()
@@ -158,7 +161,8 @@ public class Player : MonoBehaviour
 
     public void Flip(Vector3 newUp)
     {
-        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Acos(Vector3.Dot(Camera.transform.forward, newUp)) * 180 / Mathf.PI - 90, 0, 0);
+        var camDot = Vector3.Dot(Camera.transform.forward, newUp);
+        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = camDot >= 1f ? -90f : (camDot <= -1f ? 90f : Mathf.Acos(camDot) * 180 / Mathf.PI - 90), 0, 0);
         Controller.transform.rotation = Quaternion.LookRotation(HorizontalForward - newUp * Vector3.Dot(newUp, HorizontalForward), newUp);
     }
 
