@@ -12,9 +12,17 @@ public class QuestList : MonoBehaviour
         RecalculateState();
     }
 
+    void Update()
+    {
+        if (GameState.Current.Stage != prevStage)
+            RecalculateState();
+    }
+
+    int prevStage;
     void RecalculateState()
     {
+        prevStage = GameState.Current.Stage;
         foreach (var line in QuestLines)
-            line.Striked = GameState.Current.Stage >= line.MinStage;
+            line.Striked = prevStage >= line.MinStage;
     }
 }

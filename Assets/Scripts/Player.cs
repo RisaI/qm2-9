@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     [Range(0, 100)]
     public float Speed = 1f;
 
+    public float HeightDamageTreshold = 20f;
+
     public Vector3 HorizontalForward
     {
         get {
@@ -60,43 +62,80 @@ public class Player : MonoBehaviour
         
         var recSize = Mathf.Cos(Mod(Mathf.Atan2(verInput, horInput) + Mathf.PI / 4, Mathf.PI / 2) - Mathf.PI / 4f);
 
-        // Controller.Move(verInput * Speed * HorizontalForward * recSize);
-        Controller.Move(
-            ((verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize + velocity) * Time.deltaTime
-        );
-        
-        Cursor.lockState = CursorLockMode.Locked;
-        var mouseX = Input.GetAxisRaw("Mouse X");
-        var mouseY = Input.GetAxisRaw("Mouse Y");
-
-        Controller.transform.Rotate(0, mouseX, 0);
-        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
-        
-        if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f))
+        if (Physics.Raycast(transform.position, -Controller.transform.up, 1.1f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore))
         {
-            velocity = -Up * 1e-1f;
-            if (Input.GetAxis("Jump") > 0.5f)
+            var relVel = Vector3.Dot(Controller.transform.up, velocity);
+
+            if (-relVel > HeightDamageTreshold)
             {
-                Debug.Log("jump");
+                Death();
+                return;
+            }
+
+            velocity = -Up * 1e-1f;
+            if (GameState.Current.YFlipUnlocked && Input.GetAxis("YFlip") > 0.5f)
+            {
+                Flip(-Up);
+            }
+            else if (Input.GetAxis("Jump") > 0.5f)
+            {
                 velocity = Up * 4;
-                Controller.Move(velocity * Time.deltaTime);
             }
         }
         else
         {
             velocity += Up * Time.deltaTime * Physics.gravity.y;
         }
+
+        Controller.Move(
+            ((verInput * HorizontalForward + horInput  * HorizontalRight) * Speed * recSize + velocity) * Time.deltaTime
+        );
+
+        Cursor.lockState = CursorLockMode.Locked;
+        var mouseX = Input.GetAxisRaw("Mouse X");
+        var mouseY = Input.GetAxisRaw("Mouse Y");
+        Controller.transform.Rotate(0, mouseX, 0);
+        Camera.transform.localRotation = Quaternion.Euler(cameraRotation = Mathf.Clamp(cameraRotation - mouseY, -90, 90), 0, 0);
+    }
+
+    bool _died;
+    void LateUpdate()
+    {
+        if (_died)
+        {
+            var (pos, rot) = this.gameObject.scene.GetRootGameObjects()
+                .First(go => go.GetComponent<ISceneController>() != null)
+                .GetComponent<ISceneController>()
+                .GetCheckPoint(GameState.Current.CheckpointIndex);
+
+            velocity = Vector3.zero;
+            Camera.transform.localRotation = Quaternion.Euler(cameraRotation = 0, 0, 0);
+            Controller.transform.position = pos;
+            Controller.transform.rotation = rot;
+
+            _died = false;
+        }
     }
 
     void OnTriggerEnter(Collider other)
     {
+        // Debug.Log($"Triggered by {other.gameObject.name}");
+        StageProgressor prog;
+        if (other.TryGetComponent<StageProgressor>(out prog))
+        {
+            Debug.Log($"Setting stage {prog.Stage}");
+            if (GameState.Current.Stage < prog.Stage)
+                GameState.Current.Stage = prog.Stage;
+
+            if (prog.RemoveOnProgress)
+                prog.gameObject.SetActive(false);
+        }
+
         Checkpoint check;
         if (other.TryGetComponent<Checkpoint>(out check))
         {
-            GameState.Current.CheckpointIndex = check.Index;
-
-            if (GameState.Current.Stage < check.Stage)
-                GameState.Current.Stage = check.Stage;
+            if (check.Index > GameState.Current.CheckpointIndex || check.OverwriteHigher)
+                GameState.Current.CheckpointIndex = check.Index;
 
             if (GameState.Current.Dirty)
                 GameState.Current.SaveToFile();
@@ -105,20 +144,13 @@ public class Player : MonoBehaviour
         Flipper flip;
         if (other.TryGetComponent<Flipper>(out flip))
         {
-            Flip(-flip.transform.up);
+            Flip(-flip.Direction);
         }
     }
 
     public void Death()
     {
-        var (pos, rot) = this.gameObject.scene.GetRootGameObjects()
-            .First(go => go.GetComponent<ISceneController>() != null)
-            .GetComponent<ISceneController>()
-            .GetCheckPoint(GameState.Current.Stage);
-
-        velocity = Vector3.zero;
-        Controller.transform.position = pos;
-        Controller.transform.rotation = rot;
+        _died = true;
     }
 
     public void Flip(Vector3 newUp)

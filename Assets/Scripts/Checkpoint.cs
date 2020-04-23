@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    public int Stage = 0;
     public int Index = 0;
+    public bool OverwriteHigher;
 }

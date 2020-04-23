@@ -3,5 +3,5 @@ using UnityEngine;
 
 interface ISceneController
 {
-    (Vector3, Quaternion) GetCheckPoint(int stage);
+    (Vector3, Quaternion) GetCheckPoint(int idx);
 }

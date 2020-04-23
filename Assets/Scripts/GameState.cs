@@ -12,6 +12,8 @@ public class GameState : ISerializable
     public int Stage { get { return _stage; } set { Dirty = _stage != value; _stage = value; } }
     public int CheckpointIndex { get { return _chckpointIdx; } set { Dirty = _chckpointIdx != value; _chckpointIdx = value; } }
 
+    public bool YFlipUnlocked { get { return _stage > 0; } }
+
     public bool Dirty { get; private set; }
 
     GameState() { }

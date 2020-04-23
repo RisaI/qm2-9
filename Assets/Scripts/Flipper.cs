@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class Flipper : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public Vector3 _Direction = Vector3.zero;
+    public Vector3 Direction { get { return _Direction != Vector3.zero ? _Direction : transform.up; } }
 }

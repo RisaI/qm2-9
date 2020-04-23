@@ -3,21 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class DebugController : MonoBehaviour, ISceneController
+public class GameControlelr : MonoBehaviour, ISceneController
 {
-    // Start is called before the first frame update
-    void Awake()
-    {
-        if (GameState.Current == null)
-            GameState.Current = GameState.LoadNewGame();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public (Vector3, Quaternion) GetCheckPoint(int idx)
     {
         var checkpoints = GameObject.FindGameObjectsWithTag("Respawn");
@@ -25,5 +12,4 @@ public class DebugController : MonoBehaviour, ISceneController
         var point = checkpoints.FirstOrDefault(c => c.GetComponent<Checkpoint>()?.Index == idx) ?? checkpoints.FirstOrDefault();
         return (point.transform.position, point.transform.rotation);
     }
-
 }
