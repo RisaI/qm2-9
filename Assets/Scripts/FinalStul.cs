@@ -12,11 +12,11 @@ public class FinalStul : MonoBehaviour
     {
         komparator.ChangeText();
         skript.ShowStuff();
-        StartCoroutine(ShowText());
+        StartCoroutine(FinishGame());
 
     }
     
-    private IEnumerator ShowText()
+    private IEnumerator FinishGame()
     {
         yield return new WaitForSeconds(10);
         //TODO: UKONČIT HRU
