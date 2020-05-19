@@ -14,6 +14,7 @@ public class Settings : ISerializable
     }
 
     public bool Finished { get; set; }
+    public int MenuState { get; set; } = 0;
 
     Settings() { }
 

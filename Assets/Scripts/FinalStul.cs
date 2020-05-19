@@ -19,6 +19,7 @@ public class FinalStul : MonoBehaviour
     private IEnumerator FinishGame()
     {
         Settings.Current.Finished = true;
+        Settings.Current.MenuState = 1; // Show credits
         Settings.Current.SaveToFile();
 
         yield return new WaitForSeconds(10);

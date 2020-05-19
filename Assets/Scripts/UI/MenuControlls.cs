@@ -5,10 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class MenuControlls : MonoBehaviour
 {
-    const string DriveURL = "https://drive.google.com/open?id=1ChuHvzJeTMXxRfr1TOSPbJL_EKiaK4Sn";
+    const string DriveURL = "http://www.pavelstransky.cz/", GithubURL = "https://github.com/RisaI/qm2-9";
 
     public UnityEngine.UI.Image LockImage;
-    public GameObject LoadingText, ContinueButton;
+    public GameObject LoadingText, ContinueButton, Congrats;
+
+    public GameObject[] MenuStates;
 
     // Start is called before the first frame update
     void Start()
@@ -16,9 +18,36 @@ public class MenuControlls : MonoBehaviour
         LockImage.enabled = !Settings.Current.Finished;
         ContinueButton.SetActive(System.IO.File.Exists(GameState.FileName));
         LoadingText.SetActive(false);
+        Congrats.SetActive(Settings.Current.Finished);
+
+        RecoverMenuState();
     }
 
     AsyncOperation CurrentLoad;
+
+    void Update()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        if (CurrentLoad != null)
+            LoadingText.GetComponent<TMPro.TextMeshProUGUI>().text = $"Kvantuji... ({(CurrentLoad.progress * 100).ToString("N0")}%)";
+    }
+
+    public void SetMenuState(int i)
+    {
+        if (i < 0 || i >= MenuStates.Length)
+            return;
+
+        Settings.Current.MenuState = i;
+        RecoverMenuState();
+    }
+
+    void RecoverMenuState()
+    {
+        for (int i = 0; i < MenuStates.Length; ++i)
+            MenuStates[i].SetActive(false);
+
+        MenuStates[Settings.Current.MenuState].SetActive(true);
+    }
 
     public void StartGame()
     {
@@ -37,19 +66,17 @@ public class MenuControlls : MonoBehaviour
         CurrentLoad = SceneManager.LoadSceneAsync("Scenes/Game");
     }
 
-    void Update()
-    {
-        Cursor.lockState = CursorLockMode.None;
-        if (CurrentLoad != null)
-            LoadingText.GetComponent<TMPro.TextMeshProUGUI>().text = $"Kvantuji... ({(CurrentLoad.progress * 100).ToString("N0")}%)";
-    }
-
     public void OnDriveClicked()
     {
         if (Settings.Current.Finished)
         {
             Application.OpenURL(DriveURL);
         }
+    }
+
+    public void OnGithubClicked()
+    {
+        Application.OpenURL(GithubURL);
     }
 
     public void Exit()
